@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mytube": {
+      "command": "npx",
+      "args": ["-y", "mytube-mcp"],
+      "env": {
+        "MYTUBE_BASE_URL": "https://mytube.example.com",
+        "MYTUBE_AUTH_MODE": "admin-session",
+        "MYTUBE_ADMIN_PASSWORD": "replace-with-your-admin-password"
+      }
+    }
+  }
+}
