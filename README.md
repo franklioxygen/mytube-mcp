@@ -6,8 +6,20 @@
 
 Requirements: Node.js 20 or newer and a reachable MyTube 1.10.x server.
 
+After this package is published to npm, the shortest installation is:
+
 ```bash
 npx -y mytube-mcp
+```
+
+To run the public repository immediately from source:
+
+```bash
+git clone https://github.com/franklioxygen/mytube-mcp.git
+cd mytube-mcp
+npm install
+npm run build
+npm start
 ```
 
 Set the configuration in the MCP client process environment. The recommended least-privilege setup uses an API key:

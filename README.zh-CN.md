@@ -6,8 +6,20 @@
 
 要求：Node.js 20 或更高版本，以及一个可访问的 MyTube 1.10.x 服务。
 
+发布到 npm 后，最简安装方式是：
+
 ```bash
 npx -y mytube-mcp
+```
+
+如果要立即从公开仓库源码运行：
+
+```bash
+git clone https://github.com/franklioxygen/mytube-mcp.git
+cd mytube-mcp
+npm install
+npm run build
+npm start
 ```
 
 在 MCP 客户端进程环境中设置配置。推荐使用权限最小的 API key 模式：
