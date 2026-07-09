@@ -264,6 +264,14 @@ const definitions: ToolDefinition[] = [
     handler: async (api, args) => result({ video: await api.getVideo(String(args.video_id)) }),
   },
   {
+    name: "get_author_channel_url",
+    description: "Resolve the channel or author URL for a source URL.",
+    modes: ["admin-session"],
+    schema: z.object({ source_url: url }),
+    annotations: { readOnlyHint: true, openWorldHint: true },
+    handler: async (api, args) => api.getAuthorChannelUrl(String(args.source_url)),
+  },
+  {
     name: "get_video_comments",
     description: "Get available comments for a library video.",
     modes: ["admin-session"],
@@ -313,6 +321,30 @@ const definitions: ToolDefinition[] = [
     schema: z.object({ video_id: id }),
     annotations: { destructiveHint: false, idempotentHint: true, openWorldHint: true },
     handler: async (api, args) => api.refreshThumbnail(String(args.video_id), true),
+  },
+  {
+    name: "upload_thumbnail",
+    description: "Upload a local thumbnail file from an MCP_UPLOAD_ROOTS allow-listed path.",
+    modes: ["admin-session"],
+    schema: z.object({ video_id: id, thumbnail_path: z.string().trim().min(1) }),
+    annotations: { destructiveHint: false },
+    handler: async (api, args) => api.uploadThumbnail(String(args.video_id), String(args.thumbnail_path)),
+  },
+  {
+    name: "increment_video_view",
+    description: "Increment the MyTube view count for a video.",
+    modes: ["admin-session"],
+    schema: z.object({ video_id: id }),
+    annotations: { destructiveHint: false },
+    handler: async (api, args) => api.incrementView(String(args.video_id)),
+  },
+  {
+    name: "save_video_progress",
+    description: "Save playback progress for a video.",
+    modes: ["admin-session"],
+    schema: z.object({ video_id: id, progress: z.number().min(0) }),
+    annotations: { destructiveHint: false, idempotentHint: true },
+    handler: async (api, args) => api.saveProgress(String(args.video_id), Number(args.progress)),
   },
   {
     name: "upload_subtitle",
@@ -438,6 +470,14 @@ const definitions: ToolDefinition[] = [
     handler: async (api, args) => api.subscribeChannelPlaylists({ url: args.url, interval: args.interval, downloadAllPrevious: args.download_all_previous }),
   },
   {
+    name: "download_channel_playlists",
+    description: "Process and enqueue all playlists from a channel once.",
+    modes: ["admin-session"],
+    schema: z.object({ url }),
+    annotations: { destructiveHint: false, openWorldHint: true },
+    handler: async (api, args) => api.downloadChannelPlaylists(String(args.url)),
+  },
+  {
     name: "list_tasks",
     description: "List continuous-download tasks.",
     modes: ["admin-session"],
@@ -499,7 +539,15 @@ const definitions: ToolDefinition[] = [
     modes: ["admin-session"],
     schema: z.object({ recursive: z.boolean().optional(), mount_mode: z.boolean().optional() }),
     annotations: { destructiveHint: false },
-    handler: async (api) => api.maintenance("scan-files"),
+    handler: async (api, args) => api.maintenance("scan-files", { recursive: args.recursive, mount_mode: args.mount_mode }),
+  },
+  {
+    name: "scan_mount_directories",
+    description: "Scan explicitly named configured mount directories and synchronize them with MyTube.",
+    modes: ["admin-session"],
+    schema: z.object({ directories: z.array(z.string().trim().min(1)).min(1) }),
+    annotations: { destructiveHint: false },
+    handler: async (api, args) => api.scanMountDirectories(args.directories as string[]),
   },
   {
     name: "cleanup_temp_files",
@@ -516,6 +564,14 @@ const definitions: ToolDefinition[] = [
     schema: empty,
     annotations: { readOnlyHint: true, openWorldHint: true },
     handler: async (api) => api.getSystemVersion(),
+  },
+  {
+    name: "get_cloud_signed_url",
+    description: "Get a short-lived MyTube cloud-storage signed URL. Treat the returned URL as a bearer secret.",
+    modes: ["admin-session"],
+    schema: z.object({ filename: z.string().trim().min(1), type: z.enum(["video", "thumbnail"]).optional() }),
+    annotations: { readOnlyHint: true },
+    handler: async (api, args) => api.getCloudSignedUrl(String(args.filename), args.type as "video" | "thumbnail" | undefined),
   },
 ];
 

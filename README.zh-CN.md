@@ -64,7 +64,7 @@ npm start
 
 API key 模式只暴露 MyTube 当前 `allowApiKey: true` 的路由：`download_video`、`list_videos`、`get_video`、`list_collections` 和 `get_system_version`。当前 MyTube 后端不允许 API key 访问 `/api/search`，因此 `search_videos` 会被限制为管理员模式；这是对设计文档中 API key MVP 列表与实际路由表差异的安全处理。
 
-管理员会话模式还提供搜索、URL 检查、下载进度/历史、队列控制、视频元数据修改、上传、收藏夹、订阅、连续下载任务、维护操作、资源和提示。破坏性工具带有 MCP 注解，也可以通过 `MCP_ALLOWED_TOOLS` 进一步限制。
+管理员会话模式还提供搜索、URL 检查、下载进度/历史、队列控制、视频元数据修改、上传、收藏夹、订阅、连续下载任务、维护操作、云存储签名 URL、资源和提示。破坏性工具带有 MCP 注解，也可以通过 `MCP_ALLOWED_TOOLS` 进一步限制。
 
 `download_video` 默认立即返回。设置 `await_completion: true` 后，服务器会轮询 MyTube 的活动队列、等待队列和历史接口；当客户端提供 progress token 时，会发送 MCP `notifications/progress`。轮询会受到 `MYTUBE_DOWNLOAD_POLL_TIMEOUT_MS` 限制。
 

@@ -64,7 +64,7 @@ The server keeps admin cookies and CSRF tokens in memory only. If MyTube has pas
 
 API-key mode exposes only the routes MyTube currently marks `allowApiKey: true`: `download_video`, `list_videos`, `get_video`, `list_collections`, and `get_system_version`. The current MyTube backend does not allow API-key access to `/api/search`, so `search_videos` is intentionally admin-only even though the design document’s MVP appendix listed it in the API-key catalog.
 
-Admin-session mode adds search, URL inspection, progress/history, queue control, library mutations, uploads, collections, subscriptions, continuous-download tasks, maintenance, resources, and prompts. Destructive tools are annotated and can be further restricted with `MCP_ALLOWED_TOOLS`.
+Admin-session mode adds search, URL inspection, progress/history, queue control, library mutations, uploads, collections, subscriptions, continuous-download tasks, maintenance, cloud signed URLs, resources, and prompts. Destructive tools are annotated and can be further restricted with `MCP_ALLOWED_TOOLS`.
 
 `download_video` returns immediately by default. Set `await_completion: true` to poll MyTube’s active/queued/history endpoints and emit MCP `notifications/progress` when the client supplies a progress token. Polling is bounded by `MYTUBE_DOWNLOAD_POLL_TIMEOUT_MS`.
 

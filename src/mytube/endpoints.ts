@@ -78,6 +78,12 @@ export class MyTubeApi {
     return asObject(unwrap<Record<string, unknown>>(response));
   }
 
+  public async getAuthorChannelUrl(sourceUrl: string): Promise<Record<string, unknown>> {
+    assertSafeExternalUrl(sourceUrl, this.config);
+    const response = await this.client.request<unknown>("/api/videos/author-channel-url", { query: { sourceUrl } });
+    return asObject(unwrap<Record<string, unknown>>(response));
+  }
+
   public async getCollections(): Promise<Record<string, unknown>[]> {
     const response = await this.client.request<unknown>("/api/collections");
     return collectionListSchema.parse(unwrap<unknown>(response));
@@ -165,6 +171,24 @@ export class MyTubeApi {
     return asObject(unwrap<Record<string, unknown>>(response));
   }
 
+  public async uploadThumbnail(videoId: string, thumbnailPath: string): Promise<Record<string, unknown>> {
+    const safePath = await resolveAllowedPath(thumbnailPath, this.config.uploadRoots);
+    const form = new FormData();
+    form.append("thumbnail", new Blob([await fs.readFile(safePath)]), path.basename(safePath) || "thumbnail.jpg");
+    const response = await this.client.request<unknown>(`/api/videos/${encodeURIComponent(videoId)}/upload-thumbnail`, { method: "POST", body: form });
+    return asObject(unwrap<Record<string, unknown>>(response));
+  }
+
+  public async incrementView(videoId: string): Promise<Record<string, unknown>> {
+    const response = await this.client.request<unknown>(`/api/videos/${encodeURIComponent(videoId)}/view`, { method: "POST" });
+    return asObject(unwrap<Record<string, unknown>>(response));
+  }
+
+  public async saveProgress(videoId: string, progress: number): Promise<Record<string, unknown>> {
+    const response = await this.client.request<unknown>(`/api/videos/${encodeURIComponent(videoId)}/progress`, { method: "PUT", body: JSON.stringify({ progress }) });
+    return asObject(unwrap<Record<string, unknown>>(response));
+  }
+
   public async uploadSubtitle(videoId: string, subtitlePath: string, language?: string): Promise<Record<string, unknown>> {
     const safePath = await resolveAllowedPath(subtitlePath, this.config.uploadRoots);
     const form = new FormData();
@@ -242,6 +266,12 @@ export class MyTubeApi {
     return asObject(unwrap<Record<string, unknown>>(response));
   }
 
+  public async downloadChannelPlaylists(url: string): Promise<Record<string, unknown>> {
+    assertSafeExternalUrl(url, this.config);
+    const response = await this.client.request<unknown>("/api/downloads/channel-playlists", { method: "POST", body: JSON.stringify({ url }) });
+    return asObject(unwrap<Record<string, unknown>>(response));
+  }
+
   public async getTasks(): Promise<Record<string, unknown>[]> {
     const response = await this.client.request<unknown>("/api/subscriptions/tasks");
     return taskListSchema.parse(unwrap<unknown>(response));
@@ -277,8 +307,18 @@ export class MyTubeApi {
     return asObject(unwrap<Record<string, unknown>>(response));
   }
 
-  public async maintenance(action: "scan-files" | "cleanup-temp-files"): Promise<Record<string, unknown>> {
-    const response = await this.client.request<unknown>(`/api/${action}`, { method: "POST", ...(action === "scan-files" ? { body: JSON.stringify({}) } : {}) });
+  public async maintenance(action: "scan-files" | "cleanup-temp-files", body?: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const response = await this.client.request<unknown>(`/api/${action}`, { method: "POST", ...(action === "scan-files" ? { body: JSON.stringify(body ?? {}) } : {}) });
+    return asObject(unwrap<Record<string, unknown>>(response));
+  }
+
+  public async scanMountDirectories(directories: string[]): Promise<Record<string, unknown>> {
+    const response = await this.client.request<unknown>("/api/scan-mount-directories", { method: "POST", body: JSON.stringify({ directories }) });
+    return asObject(unwrap<Record<string, unknown>>(response));
+  }
+
+  public async getCloudSignedUrl(filename: string, type?: "video" | "thumbnail"): Promise<Record<string, unknown>> {
+    const response = await this.client.request<unknown>("/api/cloud/signed-url", { query: { filename, type } });
     return asObject(unwrap<Record<string, unknown>>(response));
   }
 
