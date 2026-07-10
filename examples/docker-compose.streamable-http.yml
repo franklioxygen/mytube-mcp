@@ -1,6 +1,9 @@
 services:
   mytube-mcp:
-    build: .
+    image: ghcr.io/franklioxygen/mytube-mcp:latest
+    # To build locally instead of pulling the published image, comment out
+    # the `image:` line above and uncomment the line below:
+    # build: .
     restart: unless-stopped
     ports:
       - "127.0.0.1:3100:3100"

@@ -1,5 +1,7 @@
 # MyTube MCP 服务器
 
+[English](README.md)
+
 `mytube-mcp` 是面向 [MyTube](https://github.com/franklioxygen/MyTube) 的独立 [Model Context Protocol](https://modelcontextprotocol.io/) 服务器。它把 MCP 工具、资源和提示转换为对 MyTube 现有 `/api/*` HTTP API 的鉴权调用，不直接访问 MyTube 的数据库或文件系统。
 
 ## 快速开始
@@ -89,6 +91,30 @@ npx -y mytube-mcp
 ```
 
 端点为 `POST /mcp`，健康检查为 `GET /healthz`。默认绑定回环地址。远程使用时应在 TLS 反向代理后运行并设置 `MCP_HTTP_BEARER_TOKEN`；非回环绑定没有 bearer token 会被拒绝。详见 [docs/transport.md](docs/transport.md)。
+
+## Docker
+
+每次发布都会向 GitHub Container Registry 推送多架构镜像（`linux/amd64`、`linux/arm64`）：
+
+```bash
+docker pull ghcr.io/franklioxygen/mytube-mcp:latest
+```
+
+以 Streamable HTTP 模式运行（Docker 仅适用于 HTTP 传输，不适用于 stdio）：
+
+```bash
+docker run --rm -p 127.0.0.1:3100:3100 \
+  -e MYTUBE_BASE_URL=https://mytube.example.com \
+  -e MYTUBE_AUTH_MODE=api-key \
+  -e MYTUBE_API_KEY=替换为你的-mytube-api-key \
+  -e MCP_TRANSPORT=http \
+  -e MCP_HTTP_BIND=0.0.0.0 \
+  -e MCP_HTTP_PORT=3100 \
+  -e MCP_HTTP_BEARER_TOKEN=使用足够长的随机-token \
+  ghcr.io/franklioxygen/mytube-mcp:latest
+```
+
+镜像标签遵循语义化版本（`0`、`0.1`、`0.1.0`）并附带 `latest`。Compose 配置见 [examples/docker-compose.streamable-http.yml](examples/docker-compose.streamable-http.yml)，也可以用 `docker build -t mytube-mcp .` 在本地构建。
 
 ## 开发与检查
 

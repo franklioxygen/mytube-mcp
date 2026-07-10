@@ -1,5 +1,7 @@
 # MyTube MCP Server
 
+[中文](README.zh-CN.md)
+
 `mytube-mcp` is a standalone [Model Context Protocol](https://modelcontextprotocol.io/) server for [MyTube](https://github.com/franklioxygen/MyTube). It translates MCP tools, resources, and prompts into authenticated calls to MyTube’s existing `/api/*` HTTP API. It does not access MyTube’s database or filesystem directly.
 
 ## Quick start
@@ -89,6 +91,30 @@ npx -y mytube-mcp
 ```
 
 The endpoint is `POST /mcp` and the health check is `GET /healthz`. Bind to loopback by default. For remote access, put the server behind TLS termination and set `MCP_HTTP_BEARER_TOKEN`; non-loopback binds without a bearer token are rejected. See [docs/transport.md](docs/transport.md).
+
+## Docker
+
+A multi-arch image (`linux/amd64`, `linux/arm64`) is published to the GitHub Container Registry on every release:
+
+```bash
+docker pull ghcr.io/franklioxygen/mytube-mcp:latest
+```
+
+Run it in Streamable HTTP mode (Docker only makes sense for the HTTP transport, not stdio):
+
+```bash
+docker run --rm -p 127.0.0.1:3100:3100 \
+  -e MYTUBE_BASE_URL=https://mytube.example.com \
+  -e MYTUBE_AUTH_MODE=api-key \
+  -e MYTUBE_API_KEY=replace-with-your-mytube-api-key \
+  -e MCP_TRANSPORT=http \
+  -e MCP_HTTP_BIND=0.0.0.0 \
+  -e MCP_HTTP_PORT=3100 \
+  -e MCP_HTTP_BEARER_TOKEN=use-a-long-random-token \
+  ghcr.io/franklioxygen/mytube-mcp:latest
+```
+
+Tags follow semantic versioning (`0`, `0.1`, `0.1.0`) plus `latest`. See [examples/docker-compose.streamable-http.yml](examples/docker-compose.streamable-http.yml) for a Compose setup, or build locally with `docker build -t mytube-mcp .`.
 
 ## Development
 
